@@ -121,6 +121,8 @@ function restorePreferencesUI() {
     numBtn.classList.add('active');
     document.getElementById('txt-total').innerText = String(userPreferences.totalExercises).padStart(2, '0');
   }
+
+  updateNumberButtonsUI(userPreferences.totalExercises);
 }
 
 function resetPreferencesUI() {
@@ -197,6 +199,7 @@ document.querySelectorAll('#grid-muscles .btn-option').forEach(btn => {
     }
 
     updateEquipmentAvailability();
+    autoSelectExerciseCount();
     savePreferences();
   });
 });
@@ -411,15 +414,15 @@ function openAddModal() {
   const searchInput = document.getElementById('input-search-swap');
   if (searchInput) searchInput.value = '';
 
-  currentAlternativesList = globalDataset.filter(ex =>
-    !currentRoutine.some(rutinaEx => rutinaEx.id === ex.id)
-  );
+  currentAlternativesList = globalDataset.filter(ex => {
+    const isAllowedMuscle = userPreferences.muscles.length === 0 || userPreferences.muscles.includes(ex.mainMuscle);
+    const isAllowedEquipment = userPreferences.equipment.length === 0 || userPreferences.equipment.includes(ex.equipment);
+    const isNotInCurrentRoutine = !currentRoutine.some(rutinaEx => rutinaEx.id === ex.id);
 
-  currentAlternativesList.sort((a, b) => {
-    const aSelected = userPreferences.muscles.includes(a.mainMuscle) ? 0 : 1;
-    const bSelected = userPreferences.muscles.includes(b.mainMuscle) ? 0 : 1;
-    return aSelected - bSelected;
+    return isAllowedMuscle && isAllowedEquipment && isNotInCurrentRoutine;
   });
+
+  currentAlternativesList.sort((a, b) => a.name.localeCompare(b.name));
 
   resetModalPreview();
   renderAlternativesList(currentAlternativesList);
@@ -459,6 +462,45 @@ function renderAlternativesList(list) {
 
     alternativesContainer.appendChild(item);
   });
+}
+
+function autoSelectExerciseCount() {
+  const muscleCount = userPreferences.muscles.length;
+
+  if (muscleCount === 0) return;
+
+  let targetCount;
+
+  if (muscleCount === 1) {
+    targetCount = 4;
+  } else {
+    targetCount = Math.min(Math.max(muscleCount * 2, 6), 12);
+  }
+
+  if (targetCount % 2 !== 0) {
+    targetCount += 1;
+  }
+
+  userPreferences.totalExercises = targetCount;
+  updateNumberButtonsUI(targetCount);
+}
+
+function updateNumberButtonsUI(num) {
+  document.querySelectorAll('.btn-num').forEach(btn => btn.classList.remove('active'));
+  const numBtn = document.querySelector(`.btn-num[data-num="${num}"]`);
+
+  if (numBtn) {
+    numBtn.classList.add('active');
+  } else {
+    const availableBtn = Array.from(document.querySelectorAll('.btn-num'));
+    const closestBtn = availableBtn.reduce((prev, curr) =>
+      Math.abs(parseInt(curr.dataset.num) - num) < Math.abs(parseInt(prev.dataset.num) - num) ? curr : prev
+    );
+    closestBtn.classList.add('active');
+    userPreferences.totalExercises = parseInt(closestBtn.dataset.num);
+  }
+
+  document.getElementById('txt-total').innerText = String(userPreferences.totalExercises).padStart(2, '0');
 }
 
 document.getElementById('input-search-swap').addEventListener('input', (e) => {
