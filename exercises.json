@@ -526,7 +526,7 @@
   },
   {
     "id": "3211",
-    "name": "De rodillas flexión ()",
+    "name": "De rodillas flexión",
     "mainMuscle": "chest",
     "equipment": "body weight",
     "target": "compound",
@@ -561,7 +561,7 @@
   },
   {
     "id": "1167",
-    "name": "Dynamic pecho estiramiento ()",
+    "name": "Dynamic pecho estiramiento",
     "mainMuscle": "chest",
     "equipment": "body weight",
     "target": "isolation",
@@ -2146,7 +2146,7 @@
   },
   {
     "id": "3217",
-    "name": "Modified hindu flexión ()",
+    "name": "Modified hindu flexión",
     "mainMuscle": "chest",
     "equipment": "body weight",
     "target": "compound",
@@ -2182,7 +2182,7 @@
   },
   {
     "id": "3216",
-    "name": "Pecho tap flexión ()",
+    "name": "Pecho tap flexión",
     "mainMuscle": "chest",
     "equipment": "body weight",
     "target": "compound",
@@ -4918,7 +4918,7 @@
   },
   {
     "id": "2327",
-    "name": "Mancuerna agarre inverso remo ()",
+    "name": "Mancuerna agarre inverso remo",
     "mainMuscle": "back",
     "equipment": "dumbbell",
     "target": "compound",
@@ -6891,7 +6891,7 @@
   },
   {
     "id": "3231",
-    "name": "Two toe touch ()",
+    "name": "Two toe touch",
     "mainMuscle": "back",
     "equipment": "body weight",
     "target": "isolation",
@@ -9134,7 +9134,7 @@
   },
   {
     "id": "3697",
-    "name": "Polea de rodillas remo posterior (con cuerda) ()",
+    "name": "Polea de rodillas remo posterior (con cuerda)",
     "mainMuscle": "shoulders",
     "equipment": "cable",
     "target": "compound",
@@ -16068,7 +16068,7 @@
   },
   {
     "id": "3204",
-    "name": "Arms por encima de la cabeza full abdominal ()",
+    "name": "Arms por encima de la cabeza full abdominal",
     "mainMuscle": "core",
     "equipment": "body weight",
     "target": "isolation",
@@ -16571,7 +16571,7 @@
   },
   {
     "id": "2800",
-    "name": "Barra sitted alterno leg raise ()",
+    "name": "Barra sitted alterno leg raise",
     "mainMuscle": "core",
     "equipment": "barbell",
     "target": "isolation",
@@ -16905,7 +16905,7 @@
   },
   {
     "id": "3239",
-    "name": "De rodillas plancha tap hombro ()",
+    "name": "De rodillas plancha tap hombro",
     "mainMuscle": "core",
     "equipment": "body weight",
     "target": "isolation",
@@ -17264,7 +17264,7 @@
   },
   {
     "id": "3202",
-    "name": "Half abdominal ()",
+    "name": "Half abdominal",
     "mainMuscle": "core",
     "equipment": "body weight",
     "target": "isolation",
@@ -17748,7 +17748,7 @@
   },
   {
     "id": "3213",
-    "name": "Lateral-a-lateral toe touch ()",
+    "name": "Lateral-a-lateral toe touch",
     "mainMuscle": "core",
     "equipment": "body weight",
     "target": "isolation",
@@ -18366,7 +18366,7 @@
   },
   {
     "id": "3203",
-    "name": "Prisoner half abdominal ()",
+    "name": "Prisoner half abdominal",
     "mainMuscle": "core",
     "equipment": "body weight",
     "target": "isolation",
@@ -18791,7 +18791,7 @@
   },
   {
     "id": "2801",
-    "name": "Twisted leg raise ()",
+    "name": "Twisted leg raise",
     "mainMuscle": "core",
     "equipment": "body weight",
     "target": "isolation",
@@ -18939,7 +18939,7 @@
   },
   {
     "id": "3214",
-    "name": "Arms apart circular toe touch ()",
+    "name": "Arms apart circular toe touch",
     "mainMuscle": "glutes",
     "equipment": "body weight",
     "target": "isolation",
@@ -19013,7 +19013,7 @@
   },
   {
     "id": "3236",
-    "name": "Banda elástica hip thrusts en knees ()",
+    "name": "Banda elástica hip thrusts en knees",
     "mainMuscle": "glutes",
     "equipment": "resistance band",
     "target": "isolation",
@@ -19471,7 +19471,7 @@
   },
   {
     "id": "3212",
-    "name": "Basic toe touch ()",
+    "name": "Basic toe touch",
     "mainMuscle": "glutes",
     "equipment": "body weight",
     "target": "isolation",
@@ -19507,7 +19507,7 @@
   },
   {
     "id": "3639",
-    "name": "Bent knee tumbado twist ()",
+    "name": "Bent knee tumbado twist",
     "mainMuscle": "glutes",
     "equipment": "body weight",
     "target": "isolation",
@@ -19526,7 +19526,7 @@
   },
   {
     "id": "3643",
-    "name": "Con peso cossack squats ()",
+    "name": "Con peso cossack squats",
     "mainMuscle": "glutes",
     "equipment": "weighted",
     "target": "compound",
@@ -19732,7 +19732,7 @@
   },
   {
     "id": "3470",
-    "name": "Hacia delante zancada ()",
+    "name": "Hacia delante zancada",
     "mainMuscle": "glutes",
     "equipment": "body weight",
     "target": "compound",
@@ -19750,7 +19750,7 @@
   },
   {
     "id": "3218",
-    "name": "Hands clasped circular toe touch ()",
+    "name": "Hands clasped circular toe touch",
     "mainMuscle": "glutes",
     "equipment": "body weight",
     "target": "isolation",
@@ -19768,7 +19768,7 @@
   },
   {
     "id": "3215",
-    "name": "Hands reversed clasped circular toe touch ()",
+    "name": "Hands reversed clasped circular toe touch",
     "mainMuscle": "glutes",
     "equipment": "body weight",
     "target": "isolation",
@@ -20606,7 +20606,7 @@
   },
   {
     "id": "3562",
-    "name": "Puente de glúteos con barra two legs en bench ()",
+    "name": "Puente de glúteos con barra two legs en bench",
     "mainMuscle": "glutes",
     "equipment": "barbell",
     "target": "isolation",
@@ -20644,7 +20644,7 @@
   },
   {
     "id": "3523",
-    "name": "Puente de glúteos two legs en bench ()",
+    "name": "Puente de glúteos two legs en bench",
     "mainMuscle": "glutes",
     "equipment": "body weight",
     "target": "isolation",
@@ -21291,7 +21291,7 @@
   },
   {
     "id": "3433",
-    "name": "Swimmer kicks ()",
+    "name": "Swimmer kicks",
     "mainMuscle": "glutes",
     "equipment": "body weight",
     "target": "isolation",
@@ -22957,7 +22957,7 @@
   },
   {
     "id": "3667",
-    "name": "Lateral tumbado aducción de cadera ()",
+    "name": "Lateral tumbado aducción de cadera",
     "mainMuscle": "legs",
     "equipment": "body weight",
     "target": "isolation",
@@ -23934,7 +23934,7 @@
   },
   {
     "id": "1390",
-    "name": "Sentado pantorrilla estiramiento ()",
+    "name": "Sentado pantorrilla estiramiento",
     "mainMuscle": "legs",
     "equipment": "body weight",
     "target": "isolation",
@@ -24337,7 +24337,7 @@
   },
   {
     "id": "3220",
-    "name": "Astride jumps ()",
+    "name": "Astride jumps",
     "mainMuscle": "cardio",
     "equipment": "body weight",
     "target": "isolation",
@@ -24545,7 +24545,7 @@
   },
   {
     "id": "3221",
-    "name": "Half knee bends ()",
+    "name": "Half knee bends",
     "mainMuscle": "cardio",
     "equipment": "body weight",
     "target": "isolation",
@@ -24603,7 +24603,7 @@
   },
   {
     "id": "3224",
-    "name": "Jack salto ()",
+    "name": "Jack salto",
     "mainMuscle": "cardio",
     "equipment": "body weight",
     "target": "isolation",
@@ -24698,7 +24698,7 @@
   },
   {
     "id": "3219",
-    "name": "Scissor jumps ()",
+    "name": "Scissor jumps",
     "mainMuscle": "cardio",
     "equipment": "body weight",
     "target": "isolation",
@@ -24716,7 +24716,7 @@
   },
   {
     "id": "3222",
-    "name": "Semi sentadilla salto ()",
+    "name": "Semi sentadilla salto",
     "mainMuscle": "cardio",
     "equipment": "body weight",
     "target": "compound",
@@ -24771,7 +24771,7 @@
   },
   {
     "id": "3223",
-    "name": "Star salto ()",
+    "name": "Star salto",
     "mainMuscle": "cardio",
     "equipment": "body weight",
     "target": "isolation",

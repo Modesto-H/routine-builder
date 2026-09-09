@@ -252,6 +252,11 @@ header h1 {
     border-radius: 4px;
 }
 
+.card-header-btns {
+    display: flex;
+    gap: 0.4rem;
+}
+
 .btn-top-swap {
     background: var(--secondary);
     color: #fff;
@@ -275,6 +280,34 @@ header h1 {
 }
 
 .btn-top-swap:active {
+    transform: translate(1px, 1px);
+    box-shadow: 0 0 0 var(--border-color);
+}
+
+.btn-top-delete {
+    background: var(--primary);
+    color: #fff;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+    line-height: 1;
+}
+
+.btn-top-delete:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--border-color);
+}
+
+.btn-top-delete:active {
     transform: translate(1px, 1px);
     box-shadow: 0 0 0 var(--border-color);
 }
@@ -337,6 +370,19 @@ header h1 {
 .btn-details:active {
     transform: translate(1px, 1px);
     box-shadow: 0 0 0 var(--border-color);
+}
+
+.footer-setlist {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-setlist #btn-add-exercise {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.9rem;
+    font-size: 0.95rem;
 }
 
 .modal {
@@ -624,48 +670,51 @@ header h1 {
     transform: translate(2px, 2px);
     box-shadow: 2px 2px 0 #000;
 }
-.card-header-btns {
+
+/* =======================================================
+   CLASES AUXILIARES (Para reemplazar inline styles de JS)
+   ======================================================= */
+.alternative-info {
     display: flex;
-    gap: 0.4rem;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-.btn-top-delete {
-    background: var(--primary);
-    color: #fff;
-    border: 2px solid var(--border-color);
-    border-radius: 4px;
-    width: 28px;
-    height: 28px;
-    font-size: 1.1rem;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 2px 2px 0 var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.1s ease;
-    line-height: 1;
+.alternative-muscle {
+    font-size: 0.65rem;
+    opacity: 0.8;
 }
 
-.btn-top-delete:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0 var(--border-color);
+.empty-msg {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 1rem;
 }
 
-.btn-top-delete:active {
-    transform: translate(1px, 1px);
-    box-shadow: 0 0 0 var(--border-color);
+.preview-title-tag {
+    margin-top: 0.4rem;
+    font-size: 0.65rem;
 }
 
-.footer-setlist {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: center;
+.info-body-text {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    font-weight: 600;
 }
 
-.footer-setlist #btn-add-exercise {
-    width: 100%;
-    max-width: 400px;
-    padding: 0.9rem;
-    font-size: 0.95rem;
+.info-p-spacing {
+    margin-bottom: 12px;
+}
+
+.info-p-footer {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-top: 1rem;
+}
+
+.info-repo-link {
+    color: inherit;
+    text-decoration: underline;
 }
