@@ -49,11 +49,12 @@ body {
     padding: 2rem 1rem 6rem;
     max-width: 800px;
     margin: 0 auto;
+    scrollbar-gutter: stable;
 }
 
 body.modal-open {
-    overflow: hidden;
-    height: 100vh;
+    overflow-y: hidden;
+    scrollbar-gutter: stable;
 }
 
 header {
@@ -325,13 +326,13 @@ header h1 {
 .exercise-card h3 {
     font-size: 1rem;
     font-weight: 800;
-    margin-bottom: 0.75rem;
+    margin: 0 0 auto;
 }
 
 .tags {
     display: flex;
     gap: 0.4rem;
-    margin-bottom: 1rem;
+    margin: 1rem 0 1.25rem;
     flex-wrap: wrap;
 }
 
@@ -482,7 +483,7 @@ header h1 {
     margin-bottom: 1rem;
 }
 
-#input-search-swap {
+.search-input {
     width: 100%;
     margin-bottom: 15px;
     padding: 10px;
@@ -606,6 +607,41 @@ header h1 {
     box-shadow: 3px 3px 0 var(--border-color);
 }
 
+.share-section {
+    margin-top: 1rem;
+}
+
+.share-section h3 {
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+.share-input-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.share-input-group .search-input {
+    flex: 1;
+    margin-bottom: 0;
+    font-weight: 700;
+    min-width: min(200px, 80%);
+}
+
+.share-input-group button {
+    padding: 0.5rem 1rem;
+    white-space: nowrap;
+}
+
+.share-divider {
+    border: none;
+    border-top: 2px dashed var(--border-color);
+    margin: 1.5rem 0;
+}
+
 .hidden {
     display: none !important;
 }
@@ -640,17 +676,15 @@ header h1 {
     pointer-events: none;
 }
 
-.floating-info-btn {
+.floating-btn {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
     width: 50px;
     height: 50px;
     background-color: #fff;
     color: #000;
     border: 3px solid #000;
     border-radius: 50%;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 900;
     display: grid;
     place-items: center;
@@ -658,22 +692,30 @@ header h1 {
     box-shadow: 4px 4px 0 #000;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
     z-index: 999;
-    padding-bottom: 2px;
 }
 
-.floating-info-btn:hover {
+.floating-btn:hover {
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0 #000;
 }
 
-.floating-info-btn:active {
+.floating-btn:active {
     transform: translate(2px, 2px);
     box-shadow: 2px 2px 0 #000;
 }
 
-/* =======================================================
-   CLASES AUXILIARES (Para reemplazar inline styles de JS)
-   ======================================================= */
+.share-btn {
+    right: 1rem;
+    bottom: calc(1.5rem + 50px);
+    background-color: var(--warning);
+}
+
+.info-btn {
+    right: 1rem;
+    bottom: 1rem;
+    padding-bottom: 2px;
+}
+
 .alternative-info {
     display: flex;
     flex-direction: column;

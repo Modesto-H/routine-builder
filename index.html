@@ -105,9 +105,37 @@
     </div>
 </div>
 
+<div id="modal-share" class="modal hidden">
+    <div class="modal-contenido">
+        <button id="btn-close-share" class="btn">×</button>
+        <h2>COMPARTIR / CARGAR</h2>
+
+        <div class="share-section">
+            <h3>1. COMPARTIR MI RUTINA</h3>
+            <p class="swap-subtitle">Copia este código y envíaselo a quien quieras:</p>
+            <div class="share-input-group">
+                <input type="text" id="input-share-code" class="search-input" readonly placeholder="Generando código...">
+                <button id="btn-copy-code" class="btn-accion-secundario">COPIAR</button>
+            </div>
+        </div>
+
+        <hr class="share-divider">
+
+        <div class="share-section">
+            <h3>2. INGRESAR CÓDIGO</h3>
+            <p class="swap-subtitle">Pega el código recibido para cargar la rutina:</p>
+            <div class="share-input-group">
+                <input type="text" id="input-import-code" class="search-input" placeholder="Ej. BpACaAAG..." autocomplete="off">
+                <button id="btn-import-code" class="btn-accion-terciario">CARGAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="toast-container" class="hidden"></div>
 
-<button id="btn-open-info" class="floating-info-btn" title="Información de la app">&#9432;</button>
+<button id="btn-open-share" class="floating-btn share-btn" title="Compartir o Cargar Rutina">&#10150;</button>
+<button id="btn-open-info" class="floating-btn info-btn" title="Información de la app">&#9432;</button>
 
 <div id="modal-info" class="modal hidden">
     <div class="modal-contenido">

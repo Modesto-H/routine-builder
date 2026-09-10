@@ -13,7 +13,7 @@ const state = {
   alternativesList: [],
   selectedAlternative: null,
   swapIndex: null,
-  modalMode: 'swap', // 'swap' | 'add'
+  modalMode: 'swap',
   toastTimeout: null,
   preferences: {
     muscles: [],
@@ -69,6 +69,79 @@ const Storage = {
     localStorage.removeItem(CONFIG.keys.prefs);
     state.preferences = { muscles: [], equipment: [...CONFIG.allEquipment], totalExercises: 6 };
     state.currentRoutine = [];
+  }
+};
+
+const ShareService = {
+  encodeRoutine(routine) {
+    if (!routine || routine.length === 0) return null;
+
+    const buffer = new Uint16Array(routine.length);
+    for (let i = 0; i < routine.length; i++) {
+      buffer[i] = parseInt(routine[i].id, 10);
+    }
+
+    const bytes = new Uint8Array(buffer.buffer);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+
+    return btoa(binary)
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+  },
+
+  decodeAndValidate(code, globalDataset) {
+    if (!code || typeof code !== 'string') {
+      return { valid: false, error: 'CÓDIGO INVÁLIDO O VACÍO' };
+    }
+
+    try {
+      let base64 = code.trim().replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) {
+        base64 += '=';
+      }
+
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+
+      if (bytes.length % 2 !== 0) {
+        return { valid: false, error: 'FORMATO DE CÓDIGO CORRUPTO' };
+      }
+
+      const buffer = new Uint16Array(bytes.buffer);
+
+      let concatenated = '';
+      buffer.forEach(num => {
+        concatenated += String(num).padStart(4, '0');
+      });
+
+      if (concatenated.length === 0 || concatenated.length % 4 !== 0) {
+        return { valid: false, error: 'LONGITUD DE CÓDIGO INVÁLIDA' };
+      }
+
+      const extractedIds = [];
+      for (let i = 0; i < concatenated.length; i += 4) {
+        extractedIds.push(concatenated.substring(i, i + 4));
+      }
+
+      const exercises = [];
+      for (const id of extractedIds) {
+        const found = globalDataset.find(ex => ex.id === id);
+        if (!found) {
+          return { valid: false, error: `EL EJERCICIO CON ID "${id}" NO EXISTE` };
+        }
+        exercises.push(found);
+      }
+
+      return { valid: true, routine: exercises };
+
+    } catch (e) {
+      return { valid: false, error: 'EL CÓDIGO INGRESADO NO ES VÁLIDO' };
+    }
   }
 };
 
@@ -305,6 +378,28 @@ const Modal = {
       <span class="tag-muscle">${translate('muscles', alt.mainMuscle)}</span>
     `;
     document.getElementById('btn-confirm-swap').disabled = false;
+  },
+
+  openShare() {
+    document.body.classList.add('modal-open');
+    const modal = document.getElementById('modal-share');
+    const inputExport = document.getElementById('input-share-code');
+    const inputImport = document.getElementById('input-import-code');
+
+    if (state.currentRoutine.length > 0) {
+      const code = ShareService.encodeRoutine(state.currentRoutine);
+      inputExport.value = code || '';
+    } else {
+      inputExport.value = 'NO HAY RUTINA GENERADA';
+    }
+
+    if (inputImport) inputImport.value = '';
+    modal.classList.remove('hidden');
+  },
+
+  closeShare() {
+    document.body.classList.remove('modal-open');
+    document.getElementById('modal-share').classList.add('hidden');
   }
 };
 
@@ -383,6 +478,40 @@ const Handlers = {
     document.getElementById('setlist-container').classList.add('hidden');
     document.querySelector('main').classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  copyShareCode() {
+    const input = document.getElementById('input-share-code');
+    if (!input.value || input.value === 'NO HAY RUTINA GENERADA') {
+      UI.showToast('PRIMERO DEBES CREAR UNA RUTINA');
+      return;
+    }
+
+    navigator.clipboard.writeText(input.value).then(() => {
+      UI.showToast('¡CÓDIGO COPIADO AL PORTAPAPELES!');
+    }).catch(() => {
+      input.select();
+      document.execCommand('copy');
+      UI.showToast('¡CÓDIGO COPIADO!');
+    });
+  },
+
+  importRoutineCode() {
+    const code = document.getElementById('input-import-code').value.trim();
+    const result = ShareService.decodeAndValidate(code, state.globalDataset);
+
+    if (!result.valid) {
+      UI.showToast(`⚠️ ${result.error}`);
+      return;
+    }
+
+    state.currentRoutine = result.routine;
+    state.preferences.totalExercises = result.routine.length;
+
+    Storage.save();
+    UI.renderSetlist();
+    Modal.closeShare();
+    UI.showToast('¡RUTINA CARGADA CON ÉXITO!');
   }
 };
 
@@ -450,6 +579,11 @@ document.getElementById('btn-random-swap').addEventListener('click', () => Handl
 document.getElementById('btn-close-modal').addEventListener('click', () => Modal.closeDetail());
 document.getElementById('btn-close-swap').addEventListener('click', () => Modal.closeSwap());
 
+document.getElementById('btn-open-share')?.addEventListener('click', () => Modal.openShare());
+document.getElementById('btn-close-share')?.addEventListener('click', () => Modal.closeShare());
+document.getElementById('btn-copy-code')?.addEventListener('click', () => Handlers.copyShareCode());
+document.getElementById('btn-import-code')?.addEventListener('click', () => Handlers.importRoutineCode());
+
 document.getElementById('input-search-swap')?.addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
   const filtered = state.alternativesList.filter(alt =>
@@ -462,5 +596,8 @@ const modalInfo = document.getElementById('modal-info');
 document.getElementById('btn-open-info')?.addEventListener('click', () => modalInfo.classList.remove('hidden'));
 document.getElementById('btn-close-info')?.addEventListener('click', () => modalInfo.classList.add('hidden'));
 modalInfo?.addEventListener('click', (e) => { if (e.target === modalInfo) modalInfo.classList.add('hidden'); });
+
+const modalShare = document.getElementById('modal-share');
+modalShare?.addEventListener('click', (e) => { if (e.target === modalShare) Modal.closeShare(); });
 
 initApp();
