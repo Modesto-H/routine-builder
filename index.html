@@ -134,8 +134,14 @@
 
 <div id="toast-container" class="hidden"></div>
 
-<button id="btn-open-share" class="floating-btn share-btn" title="Compartir o Cargar Rutina">&#10150;</button>
-<button id="btn-open-info" class="floating-btn info-btn" title="Información de la app">&#9432;</button>
+<div class="fab-container">
+    <div id="fab-menu" class="fab-menu">
+        <button id="btn-open-saved" class="floating-btn saved-btn" title="Rutinas Guardadas">#</button>
+        <button id="btn-open-share" class="floating-btn share-btn" title="Compartir o Cargar Rutina">&#10150;</button>
+        <button id="btn-open-info" class="floating-btn info-btn" title="Información de la app">&#9432;</button>
+    </div>
+    <button id="btn-fab-toggle" class="floating-btn fab-toggle" title="Menú">&#9776;</button>
+</div>
 
 <div id="modal-info" class="modal hidden">
     <div class="modal-contenido">
@@ -154,6 +160,17 @@
             <p class="info-p-footer">
                 * Las imágenes y videos de los ejercicios pertenecen al repositorio <a href="https://github.com/hasaneyldrm/exercises-dataset" target="_blank" rel="noopener noreferrer" class="info-repo-link">exercises-dataset</a>.
             </p>
+        </div>
+    </div>
+</div>
+
+<div id="modal-saved" class="modal modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-saved-title">MIS RUTINAS GUARDADAS</h2>
+            <button id="btn-close-saved" class="btn-close">&times;</button>
+        </div>
+        <div id="grid-saved-slots" class="saved-slots-grid">
         </div>
     </div>
 </div>

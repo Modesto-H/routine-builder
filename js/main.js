@@ -15,6 +15,7 @@ const state = {
   swapIndex: null,
   modalMode: 'swap',
   toastTimeout: null,
+  savedRoutines: Array(6).fill(null),
   preferences: {
     muscles: [],
     equipment: [...CONFIG.allEquipment],
@@ -145,6 +146,91 @@ const ShareService = {
   }
 };
 
+const SavedRoutinesService = {
+  key: 'userSavedRoutinesSlots',
+
+  loadSlots() {
+    const saved = localStorage.getItem(this.key);
+    if (!saved) {
+      state.savedRoutines = Array(6).fill(null);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) {
+        state.savedRoutines = Array(6).fill(null);
+        return;
+      }
+
+      state.savedRoutines = parsed.map(code => {
+        if (!code) return null;
+        const validation = ShareService.decodeAndValidate(code, state.globalDataset);
+        return validation.valid ? code : null;
+      });
+
+      this.saveSlots();
+    } catch {
+      state.savedRoutines = Array(6).fill(null);
+    }
+  },
+
+  saveSlots() {
+    localStorage.setItem(this.key, JSON.stringify(state.savedRoutines));
+  },
+
+  saveCurrentToSlot(index) {
+    if (!state.currentRoutine || state.currentRoutine.length === 0) {
+      UI.showToast("⚠️ NO HAY NINGUNA RUTINA ACTIVA PARA GUARDAR");
+      return;
+    }
+
+    const code = ShareService.encodeRoutine(state.currentRoutine);
+    if (!code) return;
+
+    state.savedRoutines[index] = code;
+    this.saveSlots();
+    UI.renderSavedSlots();
+    UI.showToast("¡RUTINA GUARDADA EN EL SLOT!");
+  },
+
+  deleteSlot(index) {
+    state.savedRoutines[index] = null;
+    this.saveSlots();
+    UI.renderSavedSlots();
+    UI.showToast("SLOT LIBERADO");
+  },
+
+  loadSlotRoutine(index) {
+    const code = state.savedRoutines[index];
+    if (!code) return;
+
+    const result = ShareService.decodeAndValidate(code, state.globalDataset);
+    if (!result.valid) {
+      this.deleteSlot(index);
+      return;
+    }
+
+    state.currentRoutine = result.routine;
+    state.preferences.totalExercises = result.routine.length;
+    Storage.save();
+    UI.renderSetlist();
+    Modal.closeSaved();
+    UI.showToast("¡RUTINA CARGADA CON ÉXITO!");
+  },
+
+  shareSlotCode(index) {
+    const code = state.savedRoutines[index];
+    if (!code) return;
+
+    navigator.clipboard.writeText(code).then(() => {
+      UI.showToast('¡CÓDIGO COPIADO AL PORTAPAPELES!');
+    }).catch(() => {
+      UI.showToast('NO SE PUDO COPIAR EL CÓDIGO');
+    });
+  }
+};
+
 const RoutineService = {
   buildEquipmentMap() {
     state.globalDataset.forEach(({ mainMuscle, equipment }) => {
@@ -199,6 +285,7 @@ const RoutineService = {
 const UI = {
   showToast(message, duration = 3500) {
     const toast = document.getElementById('toast-container');
+    if (!toast) return;
     toast.innerText = message;
     toast.classList.remove('hidden');
 
@@ -240,7 +327,8 @@ const UI = {
       closest.classList.add('active');
       state.preferences.totalExercises = parseInt(closest.dataset.num);
     }
-    document.getElementById('txt-total').innerText = String(state.preferences.totalExercises).padStart(2, '0');
+    const txtTotal = document.getElementById('txt-total');
+    if (txtTotal) txtTotal.innerText = String(state.preferences.totalExercises).padStart(2, '0');
   },
 
   restorePreferences() {
@@ -254,6 +342,7 @@ const UI = {
 
   renderSetlist() {
     const container = document.getElementById('grid-cards');
+    if (!container) return;
     container.innerHTML = '';
 
     state.currentRoutine.forEach((ex, index) => {
@@ -282,12 +371,13 @@ const UI = {
       container.appendChild(card);
     });
 
-    document.querySelector('main').classList.add('hidden');
-    document.getElementById('setlist-container').classList.remove('hidden');
+    document.querySelector('main')?.classList.add('hidden');
+    document.getElementById('setlist-container')?.classList.remove('hidden');
   },
 
   renderAlternativesList(list) {
     const container = document.getElementById('grid-alternatives');
+    if (!container) return;
     container.innerHTML = '';
 
     if (list.length === 0) {
@@ -314,6 +404,56 @@ const UI = {
 
       container.appendChild(item);
     });
+  },
+
+  renderSavedSlots() {
+    const container = document.getElementById('grid-saved-slots');
+    if (!container) return;
+    container.innerHTML = '';
+
+    state.savedRoutines.forEach((code, index) => {
+      if (!code) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'slot-empty';
+        emptyDiv.innerHTML = `
+          <span>+</span>
+          <p>SLOT ${index + 1}<br><small style="font-weight:400; font-size:0.75rem;">Guardar rutina actual</small></p>
+        `;
+        emptyDiv.addEventListener('click', () => SavedRoutinesService.saveCurrentToSlot(index));
+        container.appendChild(emptyDiv);
+      } else {
+        const validation = ShareService.decodeAndValidate(code, state.globalDataset);
+        if (!validation.valid) {
+          state.savedRoutines[index] = null;
+          SavedRoutinesService.saveSlots();
+          return this.renderSavedSlots();
+        }
+
+        const exercises = validation.routine;
+        const musclesList = Array.from(new Set(exercises.map(ex => translate('muscles', ex.mainMuscle)))).join(', ');
+
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'slot-card';
+
+        let thumbnailsHtml = exercises.map(ex => `<img src="${ex.image}" alt="${ex.name}" class="slot-thumb" loading="lazy">`).join('');
+
+        cardDiv.innerHTML = `
+          <div class="slot-card-header">SLOT ${index + 1}: ${musclesList}</div>
+          <div class="slot-thumbnails">${thumbnailsHtml}</div>
+          <div class="slot-footer">
+            <button class="slot-btn-load" data-index="${index}">CARGAR</button>
+            <button class="slot-btn-share" data-index="${index}">COMPARTIR</button>
+            <button class="slot-btn-delete" data-index="${index}">BORRAR</button>
+          </div>
+        `;
+
+        cardDiv.querySelector('.slot-btn-load').addEventListener('click', () => SavedRoutinesService.loadSlotRoutine(index));
+        cardDiv.querySelector('.slot-btn-share').addEventListener('click', () => SavedRoutinesService.shareSlotCode(index));
+        cardDiv.querySelector('.slot-btn-delete').addEventListener('click', () => SavedRoutinesService.deleteSlot(index));
+
+        container.appendChild(cardDiv);
+      }
+    });
   }
 };
 
@@ -327,14 +467,15 @@ const Modal = {
     document.getElementById('modal-video').src = ex.video;
 
     const steps = document.getElementById('modal-steps');
-    steps.innerHTML = ex.steps.map(s => `<li>${s}</li>`).join('');
-    document.getElementById('modal-detail').classList.remove('hidden');
+    if (steps) steps.innerHTML = ex.steps.map(s => `<li>${s}</li>`).join('');
+    document.getElementById('modal-detail')?.classList.remove('hidden');
   },
 
   closeDetail() {
     document.body.classList.remove('modal-open');
-    document.getElementById('modal-detail').classList.add('hidden');
-    document.getElementById('modal-video').src = '';
+    document.getElementById('modal-detail')?.classList.add('hidden');
+    const video = document.getElementById('modal-video');
+    if (video) video.src = '';
   },
 
   openSwap(index = null, mode = 'swap') {
@@ -345,10 +486,16 @@ const Modal = {
     document.body.classList.add('modal-open');
     const isSwap = mode === 'swap';
 
-    document.getElementById('modal-swap-title').innerText = isSwap ? "CAMBIAR EJERCICIO" : "AÑADIR EJERCICIO EXTRA";
-    document.getElementById('btn-confirm-swap').innerHTML = isSwap ? "&#10004; USAR SELECCIONADO" : "&#10004; AÑADIR A LA RUTINA";
-    document.getElementById('btn-confirm-swap').disabled = true;
-    document.getElementById('btn-random-swap').classList.toggle('hidden', !isSwap);
+    const titleEl = document.getElementById('modal-swap-title');
+    if (titleEl) titleEl.innerText = isSwap ? "CAMBIAR EJERCICIO" : "AÑADIR EJERCICIO EXTRA";
+
+    const confirmBtn = document.getElementById('btn-confirm-swap');
+    if (confirmBtn) {
+      confirmBtn.innerHTML = isSwap ? "&#10004; USAR SELECCIONADO" : "&#10004; AÑADIR A LA RUTINA";
+      confirmBtn.disabled = true;
+    }
+
+    document.getElementById('btn-random-swap')?.classList.toggle('hidden', !isSwap);
 
     const searchInput = document.getElementById('input-search-swap');
     if (searchInput) searchInput.value = '';
@@ -356,28 +503,33 @@ const Modal = {
     state.alternativesList = RoutineService.getAlternatives();
     this.resetPreview();
     UI.renderAlternativesList(state.alternativesList);
-    document.getElementById('modal-swap').classList.remove('hidden');
+    document.getElementById('modal-swap')?.classList.remove('hidden');
   },
 
   closeSwap() {
     document.body.classList.remove('modal-open');
-    document.getElementById('modal-swap').classList.add('hidden');
+    document.getElementById('modal-swap')?.classList.add('hidden');
     state.swapIndex = null;
     state.selectedAlternative = null;
   },
 
   resetPreview() {
-    document.getElementById('swap-preview').innerHTML = `<p class="preview-placeholder">Selecciona un ejercicio para ver la vista previa</p>`;
+    const preview = document.getElementById('swap-preview');
+    if (preview) preview.innerHTML = `<p class="preview-placeholder">Selecciona un ejercicio para ver la vista previa</p>`;
   },
 
   selectPreview(alt) {
     state.selectedAlternative = alt;
-    document.getElementById('swap-preview').innerHTML = `
-      <img src="${alt.video}" alt="${alt.name}" loading="lazy">
-      <h4>${alt.name.toUpperCase()}</h4>
-      <span class="tag-muscle">${translate('muscles', alt.mainMuscle)}</span>
-    `;
-    document.getElementById('btn-confirm-swap').disabled = false;
+    const preview = document.getElementById('swap-preview');
+    if (preview) {
+      preview.innerHTML = `
+        <img src="${alt.video}" alt="${alt.name}" loading="lazy">
+        <h4>${alt.name.toUpperCase()}</h4>
+        <span class="tag-muscle">${translate('muscles', alt.mainMuscle)}</span>
+      `;
+    }
+    const confirmBtn = document.getElementById('btn-confirm-swap');
+    if (confirmBtn) confirmBtn.disabled = false;
   },
 
   openShare() {
@@ -386,20 +538,44 @@ const Modal = {
     const inputExport = document.getElementById('input-share-code');
     const inputImport = document.getElementById('input-import-code');
 
-    if (state.currentRoutine.length > 0) {
-      const code = ShareService.encodeRoutine(state.currentRoutine);
-      inputExport.value = code || '';
-    } else {
-      inputExport.value = 'NO HAY RUTINA GENERADA';
+    if (inputExport) {
+      if (state.currentRoutine.length > 0) {
+        const code = ShareService.encodeRoutine(state.currentRoutine);
+        inputExport.value = code || '';
+      } else {
+        inputExport.value = 'NO HAY RUTINA GENERADA';
+      }
     }
 
     if (inputImport) inputImport.value = '';
-    modal.classList.remove('hidden');
+    modal?.classList.remove('hidden');
   },
 
   closeShare() {
     document.body.classList.remove('modal-open');
-    document.getElementById('modal-share').classList.add('hidden');
+    document.getElementById('modal-share')?.classList.add('hidden');
+  },
+
+  openSaved() {
+    document.body.classList.add('modal-open');
+    SavedRoutinesService.loadSlots();
+    UI.renderSavedSlots();
+    document.getElementById('modal-saved')?.classList.remove('hidden');
+  },
+
+  closeSaved() {
+    document.body.classList.remove('modal-open');
+    document.getElementById('modal-saved')?.classList.add('hidden');
+  },
+
+  openInfo() {
+    document.body.classList.add('modal-open');
+    document.getElementById('modal-info')?.classList.remove('hidden');
+  },
+
+  closeInfo() {
+    document.body.classList.remove('modal-open');
+    document.getElementById('modal-info')?.classList.add('hidden');
   }
 };
 
@@ -475,14 +651,14 @@ const Handlers = {
   resetAndGoConfig() {
     Storage.clear();
     UI.restorePreferences();
-    document.getElementById('setlist-container').classList.add('hidden');
-    document.querySelector('main').classList.remove('hidden');
+    document.getElementById('setlist-container')?.classList.add('hidden');
+    document.querySelector('main')?.classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   },
 
   copyShareCode() {
     const input = document.getElementById('input-share-code');
-    if (!input.value || input.value === 'NO HAY RUTINA GENERADA') {
+    if (!input || !input.value || input.value === 'NO HAY RUTINA GENERADA') {
       UI.showToast('PRIMERO DEBES CREAR UNA RUTINA');
       return;
     }
@@ -497,7 +673,9 @@ const Handlers = {
   },
 
   importRoutineCode() {
-    const code = document.getElementById('input-import-code').value.trim();
+    const inputImport = document.getElementById('input-import-code');
+    if (!inputImport) return;
+    const code = inputImport.value.trim();
     const result = ShareService.decodeAndValidate(code, state.globalDataset);
 
     if (!result.valid) {
@@ -526,6 +704,7 @@ async function initApp() {
 
     RoutineService.buildEquipmentMap();
     Storage.loadPreferences();
+    SavedRoutinesService.loadSlots();
 
     if (Storage.loadRoutine()) {
       UI.renderSetlist();
@@ -571,18 +750,21 @@ document.querySelectorAll('.btn-num').forEach(btn => {
   });
 });
 
-document.getElementById('btn-build').addEventListener('click', () => Handlers.buildRoutine());
-document.getElementById('btn-rebuild').addEventListener('click', () => Handlers.resetAndGoConfig());
-document.getElementById('btn-add-exercise').addEventListener('click', () => Modal.openSwap(null, 'add'));
-document.getElementById('btn-confirm-swap').addEventListener('click', () => Handlers.confirmSwap());
-document.getElementById('btn-random-swap').addEventListener('click', () => Handlers.randomSwap());
-document.getElementById('btn-close-modal').addEventListener('click', () => Modal.closeDetail());
-document.getElementById('btn-close-swap').addEventListener('click', () => Modal.closeSwap());
+document.getElementById('btn-build')?.addEventListener('click', () => Handlers.buildRoutine());
+document.getElementById('btn-rebuild')?.addEventListener('click', () => Handlers.resetAndGoConfig());
+document.getElementById('btn-add-exercise')?.addEventListener('click', () => Modal.openSwap(null, 'add'));
+document.getElementById('btn-confirm-swap')?.addEventListener('click', () => Handlers.confirmSwap());
+document.getElementById('btn-random-swap')?.addEventListener('click', () => Handlers.randomSwap());
+document.getElementById('btn-close-modal')?.addEventListener('click', () => Modal.closeDetail());
+document.getElementById('btn-close-swap')?.addEventListener('click', () => Modal.closeSwap());
 
 document.getElementById('btn-open-share')?.addEventListener('click', () => Modal.openShare());
 document.getElementById('btn-close-share')?.addEventListener('click', () => Modal.closeShare());
 document.getElementById('btn-copy-code')?.addEventListener('click', () => Handlers.copyShareCode());
 document.getElementById('btn-import-code')?.addEventListener('click', () => Handlers.importRoutineCode());
+
+document.getElementById('btn-open-saved')?.addEventListener('click', () => Modal.openSaved());
+document.getElementById('btn-close-saved')?.addEventListener('click', () => Modal.closeSaved());
 
 document.getElementById('input-search-swap')?.addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
@@ -593,11 +775,33 @@ document.getElementById('input-search-swap')?.addEventListener('input', (e) => {
 });
 
 const modalInfo = document.getElementById('modal-info');
-document.getElementById('btn-open-info')?.addEventListener('click', () => modalInfo.classList.remove('hidden'));
-document.getElementById('btn-close-info')?.addEventListener('click', () => modalInfo.classList.add('hidden'));
-modalInfo?.addEventListener('click', (e) => { if (e.target === modalInfo) modalInfo.classList.add('hidden'); });
+document.getElementById('btn-open-info')?.addEventListener('click', () => Modal.openInfo());
+document.getElementById('btn-close-info')?.addEventListener('click', () => Modal.closeInfo());
+modalInfo?.addEventListener('click', (e) => { if (e.target === modalInfo) Modal.closeInfo(); });
 
 const modalShare = document.getElementById('modal-share');
 modalShare?.addEventListener('click', (e) => { if (e.target === modalShare) Modal.closeShare(); });
+
+const modalSaved = document.getElementById('modal-saved');
+modalSaved?.addEventListener('click', (e) => { if (e.target === modalSaved) Modal.closeSaved(); });
+
+const fabMenu = document.getElementById('fab-menu');
+const fabToggle = document.getElementById('btn-fab-toggle');
+
+fabToggle?.addEventListener('click', () => {
+  fabMenu?.classList.toggle('active');
+  if (fabMenu?.classList.contains('active')) {
+    fabToggle.innerHTML = '&times;';
+  } else {
+    fabToggle.innerHTML = '&#9776;';
+  }
+});
+
+document.querySelectorAll('.fab-menu .floating-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    fabMenu?.classList.remove('active');
+    if (fabToggle) fabToggle.innerHTML = '&#9776;';
+  });
+});
 
 initApp();
